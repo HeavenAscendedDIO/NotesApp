@@ -1,0 +1,26 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Заметки";
+}
+
+<div class="container mt-4" style="max-width: 600px;">
+    <h2 class="mb-4 text-center">AJAX Заметки</h2>
+
+    <div class="card card-body mb-4 shadow-sm">
+        <h5>Новая заметка</h5>
+
+        <div class="mb-3">
+            <input type="text" id="noteTitle" class="form-control" placeholder="Заголовок"/>
+        </div>
+        <div class="mb-3">
+            <textarea id="noteContent" class="form-control" rows="3" placeholder="Текст заметки"></textarea>
+        </div>
+        <div>
+            <button onclick="addNote()" class="btn btn-primary w-100">Сохранить</button>
+        </div>
+    </div>
+    <div id="noteContainer">
+        <div class="text-center text-muted">Загрузка заметок</div>
+    </div>
+</div>
