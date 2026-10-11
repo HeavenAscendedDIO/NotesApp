@@ -2,7 +2,6 @@
     loadNotes();
 });
 
-
 async function loadNotes() {
     const container = document.getElementById('noteContainer');
 
@@ -33,7 +32,6 @@ async function loadNotes() {
     }
 }
 
-
 async function addNote() {
     const titleInput = document.getElementById('noteTitle');
     const contentInput = document.getElementById('noteContent');
@@ -60,10 +58,18 @@ async function addNote() {
             body: JSON.stringify(newNote)
         });
 
+        if (!response.ok) {
+            throw new Error('Ошибка при сохранении');
+        }
+
         const createdNote = await response.json();
 
         titleInput.value = '';
         contentInput.value = '';
+
+        const modalElement = document.getElementById('addNoteModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+        modalInstance.hide();
 
         loadNotes();
 
@@ -72,7 +78,6 @@ async function addNote() {
         alert('Не удалось сохранить заметку');
     }
 }
-
 
 async function deleteNote(id) {
     if (!confirm('Вы уверены, что хотите удалить эту заметку?')) {
@@ -96,7 +101,6 @@ async function deleteNote(id) {
         alert('Произошла ошибка при удалении заметки.');
     }
 }
-
 
 function createNoteElement(note) {
     const card = document.createElement('div');
