@@ -1,6 +1,28 @@
 ﻿document.addEventListener('DOMContentLoaded', function () {
     loadNotes();
+
+    document.getElementById('noteSearch').addEventListener('input', filterNotes);
 });
+
+function filterNotes() {
+    const query = document.getElementById('noteSearch').value.trim().toLowerCase();
+    const cards = document.querySelectorAll('#noteContainer .card');
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+        const title = card.querySelector('.card-title').textContent.toLowerCase();
+        const content = card.querySelector('.note-content').textContent.toLowerCase();
+        const matches = title.includes(query) || content.includes(query);
+
+        card.style.display = matches ? '' : 'none';
+        if (matches) {
+            visibleCount++;
+        }
+    });
+
+    const noResults = document.getElementById('noResults');
+    noResults.style.display = (cards.length > 0 && visibleCount === 0) ? '' : 'none';
+}
 
 async function loadNotes() {
     const container = document.getElementById('noteContainer');
@@ -25,6 +47,8 @@ async function loadNotes() {
             const noteCard = createNoteElement(note);
             container.appendChild(noteCard);
         });
+
+        filterNotes();
 
     } catch (error) {
         console.error('Ошибка:', error);
