@@ -1,4 +1,8 @@
 ﻿document.addEventListener('DOMContentLoaded', function () {
+    if (!document.getElementById('noteContainer')) {
+        return; // Страница не содержит заметок (например, страница задач)
+    }
+
     loadNotes();
 
     document.getElementById('noteSearch').addEventListener('input', filterNotes);

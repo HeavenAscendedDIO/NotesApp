@@ -21,32 +21,6 @@ var dbPath = Path.Combine(app.Environment.ContentRootPath, "databases", "notes.d
 Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
 var connectionString = new SqliteConnectionStringBuilder { DataSource = dbPath }.ToString();
 
-using (var connection = new SqliteConnection(connectionString))
-{
-    connection.Open();
-
-    var createTable = connection.CreateCommand();
-    createTable.CommandText = """
-        CREATE TABLE IF NOT EXISTS notes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            content TEXT NOT NULL
-        );
-        """;
-    createTable.ExecuteNonQuery();
-
-    try
-    {
-        var addColumn = connection.CreateCommand();
-        addColumn.CommandText = "ALTER TABLE notes ADD COLUMN created_at TEXT;";
-        addColumn.ExecuteNonQuery();
-    }
-    catch (SqliteException)
-    {
-        // Столбец уже существует
-    }
-}
-
 app.MapGet("/api/notes", () =>
 {
     var notes = new List<Note>();
@@ -106,6 +80,106 @@ app.MapDelete("/api/notes/{id:int}", (int id) =>
 
     var command = connection.CreateCommand();
     command.CommandText = "DELETE FROM notes WHERE id = $id;";
+    command.Parameters.AddWithValue("$id", id);
+
+    if (command.ExecuteNonQuery() == 0)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.Ok();
+});
+
+app.MapGet("/api/tasks", () =>
+{
+    var tasks = new List<TaskItem>();
+
+    using var connection = new SqliteConnection(connectionString);
+    connection.Open();
+
+    var command = connection.CreateCommand();
+    command.CommandText = "SELECT id, title, description, day, is_done FROM tasks ORDER BY day;";
+
+    using var reader = command.ExecuteReader();
+    while (reader.Read())
+    {
+        tasks.Add(new TaskItem
+        {
+            Id = reader.GetInt32(0),
+            Title = reader.GetString(1),
+            Description = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+            Day = DateTime.Parse(reader.GetString(3)),
+            IsDone = reader.GetInt32(4) != 0
+        });
+    }
+
+    return Results.Ok(tasks);
+});
+
+app.MapPost("/api/tasks", (TaskItem newTask) =>
+{
+    if (string.IsNullOrWhiteSpace(newTask.Title))
+    {
+        return Results.BadRequest("Заголовок не может быть пустым");
+    }
+
+    using var connection = new SqliteConnection(connectionString);
+    connection.Open();
+
+    var command = connection.CreateCommand();
+    command.CommandText = """
+        INSERT INTO tasks (title, description, day, is_done)
+        VALUES ($title, $description, $day, $isDone);
+        SELECT last_insert_rowid();
+        """;
+    command.Parameters.AddWithValue("$title", newTask.Title);
+    command.Parameters.AddWithValue("$description", newTask.Description ?? string.Empty);
+    command.Parameters.AddWithValue("$day", newTask.Day.ToString("yyyy-MM-dd"));
+    command.Parameters.AddWithValue("$isDone", newTask.IsDone ? 1 : 0);
+
+    newTask.Id = Convert.ToInt32(command.ExecuteScalar());
+
+    return Results.Json(newTask);
+});
+
+app.MapPut("/api/tasks/{id:int}", (int id, TaskItem updatedTask) =>
+{
+    if (string.IsNullOrWhiteSpace(updatedTask.Title))
+    {
+        return Results.BadRequest("Заголовок не может быть пустым");
+    }
+
+    using var connection = new SqliteConnection(connectionString);
+    connection.Open();
+
+    var command = connection.CreateCommand();
+    command.CommandText = """
+        UPDATE tasks
+        SET title = $title, description = $description, day = $day, is_done = $isDone
+        WHERE id = $id;
+        """;
+    command.Parameters.AddWithValue("$id", id);
+    command.Parameters.AddWithValue("$title", updatedTask.Title);
+    command.Parameters.AddWithValue("$description", updatedTask.Description ?? string.Empty);
+    command.Parameters.AddWithValue("$day", updatedTask.Day.ToString("yyyy-MM-dd"));
+    command.Parameters.AddWithValue("$isDone", updatedTask.IsDone ? 1 : 0);
+
+    if (command.ExecuteNonQuery() == 0)
+    {
+        return Results.NotFound();
+    }
+
+    updatedTask.Id = id;
+    return Results.Json(updatedTask);
+});
+
+app.MapDelete("/api/tasks/{id:int}", (int id) =>
+{
+    using var connection = new SqliteConnection(connectionString);
+    connection.Open();
+
+    var command = connection.CreateCommand();
+    command.CommandText = "DELETE FROM tasks WHERE id = $id;";
     command.Parameters.AddWithValue("$id", id);
 
     if (command.ExecuteNonQuery() == 0)

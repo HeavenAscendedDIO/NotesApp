@@ -1,8 +1,79 @@
-﻿@page
-@model PrivacyModel
+@page
+@model TasksModel
 @{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Задачи";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="container">
+    <h2 class="mb-4 text-center">Задачник</h2>
+
+    <div id="calendar"></div>
+</div>
+
+<button type="button"
+        class="btn btn-primary rounded-circle shadow-lg position-fixed d-flex align-items-center justify-content-center"
+        style="width: 56px; height: 56px; bottom: 30px; right: 30px; z-index: 1050; font-size: 28px; line-height: 1; padding: 0;"
+        onclick="openTaskModal()"
+        title="Добавить задачу">
+    +
+</button>
+
+<div class="modal fade" id="taskModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="taskModalLabel">Новая задача</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="taskId" value="" />
+                <div class="mb-3">
+                    <label for="taskTitle" class="form-label">Заголовок</label>
+                    <input type="text" id="taskTitle" class="form-control" placeholder="Заголовок задачи" />
+                </div>
+                <div class="mb-3">
+                    <label for="taskDescription" class="form-label">Описание</label>
+                    <textarea id="taskDescription" class="form-control" rows="3" placeholder="Описание задачи"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="taskDay" class="form-label">День задачи</label>
+                    <input type="date" id="taskDay" class="form-control" />
+                </div>
+                <div class="form-check form-switch" id="taskIsDoneGroup" style="display: none;">
+                    <input type="checkbox" class="form-check-input" id="taskIsDone" />
+                    <label class="form-check-label" for="taskIsDone">Сделано</label>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" id="deleteTaskButton" class="btn btn-outline-danger" style="display: none;"
+                        onclick="deleteTask()">Удалить</button>
+                <div>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" onclick="saveTask()" class="btn btn-primary">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="~/lib/fullcalendar/skeleton.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/fullcalendar/themes/monarch/theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/fullcalendar/themes/monarch/palettes/purple.css" asp-append-version="true" />
+
+    <script src="~/lib/fullcalendar/fullcalendar.global.js"></script>
+    <script src="~/lib/fullcalendar/locales-all.js"></script>
+    <script src="~/lib/fullcalendar/themes/monarch/global.js"></script>
+    <script src="~/js/tasks.js" asp-append-version="true"></script>
+}
+
+<style>
+    #calendar {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .task-done .fc-event-title {
+        text-decoration: line-through;
+    }
+</style>
