@@ -4,20 +4,27 @@
     ViewData["Title"] = "Заметки";
 }
 
-<div class="container mt-4" style="max-width: 600px;">
-    <h2 class="mb-4 text-center">AJAX Заметки</h2>
-
-    <div class="mb-3">
+<div class="app-page-header">
+    <div>
+        <h1 class="app-title h3 mb-1">Заметки</h1>
+        <div class="app-subtitle">Личные записи с форматированием и поиском</div>
+    </div>
+    <div class="app-search w-100">
         <input type="search" id="noteSearch" class="form-control" placeholder="Поиск заметок..." />
     </div>
+</div>
 
-    <div id="noteContainer">
-        <div class="text-center text-muted">Загрузка заметок</div>
+<div id="noteContainer" class="notes-grid">
+    <div class="empty-state">
+        <span class="empty-state-icon">⏳</span>
+        <div>Загрузка заметок…</div>
     </div>
+</div>
 
-    <div id="noResults" class="text-center text-muted" style="display: none;">
-        Ничего не найдено
-    </div>
+<div id="noResults" class="empty-state mt-3" style="display: none;">
+    <span class="empty-state-icon">🔍</span>
+    <div class="empty-state-title">Ничего не найдено</div>
+    <div>Попробуйте изменить поисковый запрос.</div>
 </div>
 
 <button type="button"
@@ -29,7 +36,7 @@
     +
 </button>
 
-<div class="modal fade" id="addNoteModal" tabindex="-1" aria-labelledby="addNoteModalLabel" aria-hidden="true">
+<div class="modal fade app-modal" id="addNoteModal" tabindex="-1" aria-labelledby="addNoteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -38,11 +45,14 @@
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <input type="text" id="noteTitle" class="form-control" placeholder="Заголовок" />
+                    <label for="noteTitle" class="form-label">Заголовок</label>
+                    <input type="text" id="noteTitle" class="form-control" placeholder="Например, идеи для проекта" />
                 </div>
-                <div class="mb-3">
-                    <textarea id="noteContent" class="form-control" rows="3" placeholder="Текст заметки"></textarea>
+                <div class="mb-1">
+                    <label for="noteContent" class="form-label">Текст заметки</label>
+                    <textarea id="noteContent" class="form-control" rows="4" placeholder="Пишите свободно…"></textarea>
                 </div>
+                <div class="form-text">Форматирование и цвет текста можно изменить прямо на карточке.</div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>

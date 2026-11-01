@@ -1,5 +1,34 @@
+:root {
+  --app-bg: #f4f6fb;
+  --app-surface: #ffffff;
+  --app-surface-2: #f8f9fc;
+  --app-border: #e3e7f0;
+  --app-text: #1f2533;
+  --app-muted: #6b7385;
+  --app-primary: #4f6ef7;
+  --app-primary-soft: #eaeefe;
+  --app-shadow: 0 1px 2px rgba(23, 30, 48, .04), 0 8px 24px rgba(23, 30, 48, .06);
+  --app-shadow-hover: 0 2px 4px rgba(23, 30, 48, .06), 0 16px 36px rgba(23, 30, 48, .12);
+  --app-radius: 16px;
+}
+
+[data-bs-theme="dark"] {
+  --app-bg: #12141c;
+  --app-surface: #1b1e29;
+  --app-surface-2: #222633;
+  --app-border: #2c3141;
+  --app-text: #e8eaf2;
+  --app-muted: #9aa2b8;
+  --app-primary: #7b90ff;
+  --app-primary-soft: #262d47;
+  --app-shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .28);
+  --app-shadow-hover: 0 2px 6px rgba(0, 0, 0, .35), 0 16px 40px rgba(0, 0, 0, .4);
+}
+
 html {
   font-size: 14px;
+  position: relative;
+  min-height: 100%;
 }
 
 @media (min-width: 768px) {
@@ -8,24 +37,447 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
 body {
-  margin-bottom: 60px;
+  margin-bottom: 80px;
+  min-height: 100vh;
+  color: var(--app-text);
+  background-color: var(--app-bg);
+  background-image:
+    radial-gradient(1100px 500px at 8% -10%, rgba(79, 110, 247, .10), transparent 60%),
+    radial-gradient(900px 420px at 100% 0%, rgba(139, 92, 246, .09), transparent 55%);
+  background-repeat: no-repeat;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+[data-bs-theme="dark"] body {
+  background-image:
+    radial-gradient(1100px 500px at 8% -10%, rgba(79, 110, 247, .16), transparent 60%),
+    radial-gradient(900px 420px at 100% 0%, rgba(139, 92, 246, .13), transparent 55%);
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+/* ---------- Шапка ---------- */
+
+.app-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  border-bottom: 1px solid var(--app-border);
+  background-color: color-mix(in srgb, var(--app-surface) 82%, transparent);
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+}
+
+.app-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: var(--app-text);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.app-brand:hover {
+  color: var(--app-text);
+}
+
+.app-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  font-size: .95rem;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, #4f6ef7, #8b5cf6);
+  box-shadow: 0 4px 12px rgba(79, 110, 247, .35);
+}
+
+.app-nav {
+  gap: .15rem;
+}
+
+.app-nav .nav-link {
+  position: relative;
+  padding: .45rem .85rem;
+  border-radius: 10px;
+  color: var(--app-muted);
+  font-weight: 500;
+  transition: color .15s ease, background-color .15s ease;
+}
+
+.app-nav .nav-link:hover {
+  color: var(--app-text);
+  background-color: var(--app-surface-2);
+}
+
+.app-nav .nav-link.active {
+  color: var(--app-primary);
+  background-color: var(--app-primary-soft);
+}
+
+.app-nav-badge {
+  background-color: var(--app-primary);
+  color: #fff;
+  font-size: .68rem;
+  vertical-align: middle;
+  margin-left: .15rem;
+}
+
+.app-theme-toggle {
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  color: var(--app-text);
+  background-color: var(--app-surface);
+  transition: background-color .15s ease, border-color .15s ease;
+}
+
+.app-theme-toggle:hover {
+  background-color: var(--app-surface-2);
+  border-color: var(--app-muted);
+}
+
+.theme-icon-dark,
+[data-bs-theme="dark"] .theme-icon-light {
+  display: none;
+}
+
+[data-bs-theme="dark"] .theme-icon-dark {
+  display: inline;
+}
+
+.app-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 1rem 0;
+  border-top: 1px solid var(--app-border);
+  font-size: .85rem;
+}
+
+/* ---------- Карточки заметок ---------- */
+
+.note-card {
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  background-color: var(--app-surface);
+  box-shadow: var(--app-shadow);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  animation: card-in .28s ease both;
+}
+
+.note-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--app-shadow-hover);
+  border-color: color-mix(in srgb, var(--app-primary) 35%, var(--app-border));
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.note-card .card-title {
+  font-weight: 650;
+  letter-spacing: -.01em;
+  word-break: break-word;
+}
+
+.note-card.is-pinned {
+  border-color: color-mix(in srgb, var(--app-primary) 45%, var(--app-border));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--app-primary) 22%, transparent), var(--app-shadow);
+}
+
+.note-card.is-pinned .card-title::after {
+  content: " 📌";
+  font-size: .8em;
+}
+
+.note-meta {
+  font-size: .78rem;
+  color: var(--app-muted);
+}
+
+.note-content {
+  min-height: 1.5rem;
+  outline: none;
+  border-radius: 8px;
+  word-break: break-word;
+}
+
+.note-content:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-primary) 18%, transparent);
+  padding: .25rem .4rem;
+  margin: .1rem -.4rem;
+}
+
+.note-toolbar .btn {
+  width: 34px;
+  color: var(--app-muted);
+  border-color: var(--app-border);
+  background-color: transparent;
+}
+
+.note-toolbar .btn:hover {
+  color: var(--app-primary);
+  border-color: var(--app-primary);
+  background-color: var(--app-primary-soft);
+}
+
+.note-actions {
+  display: inline-flex;
+  gap: .25rem;
+  flex-shrink: 0;
+}
+
+.note-actions .btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  border-color: var(--app-border);
+  color: var(--app-muted);
+  background-color: transparent;
+  font-size: .9rem;
+}
+
+.note-actions .btn:hover {
+  border-color: var(--app-muted);
+  background-color: var(--app-surface-2);
+  color: var(--app-text);
+}
+
+.note-actions .btn.btn-outline-danger {
+  color: #dc3545;
+}
+
+.note-actions .btn.btn-outline-danger:hover {
+  border-color: #dc3545;
+  background-color: color-mix(in srgb, #dc3545 12%, transparent);
+  color: #dc3545;
+}
+
+.note-actions .btn.is-pinned-toggle {
+  color: #eab308;
+  border-color: color-mix(in srgb, #eab308 45%, var(--app-border));
+  background-color: color-mix(in srgb, #eab308 12%, transparent);
+}
+
+.note-save-state {
+  font-size: .72rem;
+  color: #16a34a;
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+
+.note-save-state.show {
+  opacity: 1;
+}
+
+/* ---------- Общие элементы ---------- */
+
+.app-title {
+  font-weight: 750;
+  letter-spacing: -.02em;
+}
+
+.app-subtitle {
+  color: var(--app-muted);
+  font-size: .9rem;
+}
+
+.notes-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  align-items: start;
+}
+
+.app-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-bottom: 1.25rem;
+}
+
+.app-search {
+  position: relative;
+  max-width: 420px;
+}
+
+.app-search .form-control {
+  padding-left: 2.35rem;
+  border-radius: 12px;
+  border-color: var(--app-border);
+  background-color: var(--app-surface);
+}
+
+.app-search::before {
+  content: "⌕";
+  position: absolute;
+  left: .8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--app-muted);
+  pointer-events: none;
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  border: 1px dashed var(--app-border);
+  border-radius: var(--app-radius);
+  background-color: color-mix(in srgb, var(--app-surface) 60%, transparent);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  color: var(--app-muted);
+}
+
+.empty-state-icon {
+  display: block;
+  font-size: 2rem;
+  margin-bottom: .5rem;
+}
+
+.empty-state-title {
+  color: var(--app-text);
+  font-weight: 600;
+  margin-bottom: .25rem;
+}
+
+/* ---------- Модалки ---------- */
+
+.app-modal .modal-content {
+  border: 1px solid var(--app-border);
+  border-radius: 18px;
+  background-color: var(--app-surface);
+  box-shadow: var(--app-shadow-hover);
+  overflow: hidden;
+}
+
+.app-modal .modal-header {
+  border-bottom: 1px solid var(--app-border);
+  padding: 1rem 1.25rem;
+}
+
+.app-modal .modal-title {
+  font-weight: 650;
+  letter-spacing: -.01em;
+}
+
+.app-modal .modal-body {
+  padding: 1.25rem;
+}
+
+.app-modal .modal-footer {
+  border-top: 1px solid var(--app-border);
+  padding: .9rem 1.25rem;
+}
+
+.app-modal .form-label {
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--app-muted);
+}
+
+.app-modal .form-control {
+  border-radius: 10px;
+  border-color: var(--app-border);
+  background-color: var(--app-surface-2);
+}
+
+.app-modal .form-control:focus {
+  border-color: var(--app-primary);
+  background-color: var(--app-surface);
+}
+
+/* ---------- Задачи ---------- */
+
+.app-calendar-card {
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  background-color: var(--app-surface);
+  box-shadow: var(--app-shadow);
+  padding: 1rem;
+}
+
+.task-progress {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  font-size: .85rem;
+  color: var(--app-muted);
+}
+
+.task-progress .progress {
+  width: 120px;
+  height: 6px;
+  border-radius: 999px;
+  background-color: var(--app-surface-2);
+}
+
+.task-progress .progress-bar {
+  background-color: var(--app-primary);
+}
+
+.task-event-content {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.task-event-content .fc-event-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fc-event .task-toggle {
+  flex: none;
+  cursor: pointer;
+  opacity: .75;
+}
+
+.fc-event .task-toggle:hover {
+  opacity: 1;
+}
+
+.fc-event .task-toggle.is-checked {
+  opacity: 1;
+}
+
+[data-bs-theme="dark"] .app-calendar-card {
+  color-scheme: dark;
+}
+
+[data-bs-theme="dark"] .fc {
+  --fc-page-bg-color: var(--app-surface);
+  --fc-border-color: var(--app-border);
+  --fc-neutral-bg-color: var(--app-surface-2);
+  --fc-today-bg-color: color-mix(in srgb, var(--app-primary) 14%, transparent);
+}
+
+.fc .fc-button-primary:focus,
+.fc .fc-button-primary:active:focus {
+  box-shadow: none;
 }

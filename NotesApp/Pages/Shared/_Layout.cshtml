@@ -1,9 +1,20 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - NotesApp</title>
+    <script>
+        (function () {
+            var theme = 'light';
+            try {
+                theme = localStorage.getItem('notesapp-theme')
+                    || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            } catch (e) { }
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            document.documentElement.setAttribute('data-color-scheme', theme);
+        })();
+    </script>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -11,22 +22,35 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm app-navbar mb-4">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">NotesApp</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand app-brand" asp-area="" asp-page="/Index">
+                    <span class="app-brand-mark">N</span>
+                    <span>NotesApp</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Переключить навигацию">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav flex-grow-1 app-nav">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Заметки</a>
+                            <a class="nav-link @(CurrentPage == "/Index" ? "active" : "")" asp-area="" asp-page="/Index">Заметки</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Tasks">Задачи</a>
+                            <a class="nav-link @(CurrentPage == "/Tasks" ? "active" : "")" asp-area="" asp-page="/Tasks">
+                                Задачи
+                                <span id="todayTasksBadge" class="badge rounded-pill app-nav-badge d-none" title="Задачи на сегодня">0</span>
+                            </a>
                         </li>
                     </ul>
+                    <div class="d-flex align-items-center gap-2 mt-2 mt-sm-0">
+                        <button type="button" id="themeToggle" class="btn btn-sm app-theme-toggle" title="Переключить тему"
+                                aria-label="Переключить тему">
+                            <span class="theme-icon-light">☾</span>
+                            <span class="theme-icon-dark">☀</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -37,9 +61,10 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - NotesApp - <a asp-area="" asp-page="/Tasks">Задачи</a>
+    <footer class="app-footer text-muted">
+        <div class="container d-flex flex-wrap justify-content-between gap-2">
+            <span>&copy; 2026 NotesApp</span>
+            <span>ASP.NET Core · AJAX · SQLite</span>
         </div>
     </footer>
 
@@ -50,3 +75,7 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+@functions {
+    private string CurrentPage => ViewContext.RouteData.Values["page"] as string ?? string.Empty;
+}

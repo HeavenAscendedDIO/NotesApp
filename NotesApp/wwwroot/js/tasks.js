@@ -19,6 +19,9 @@ document.addEventListener('DOMContentLoaded', function () {
         editable: true,
         dayMaxEvents: true,
         events: fetchTasks,
+        eventContent: createTaskEventContent,
+        datesSet: updateTaskProgress,
+        eventsSet: updateTaskProgress,
         dateClick: function (info) {
             openTaskModal(null, info.date);
         },
@@ -54,19 +57,88 @@ async function fetchTasks(info, successCallback, failureCallback) {
 function taskToEvent(task) {
     return {
         id: task.id,
-        title: (task.isDone ? '✔ ' : '') + task.title,
+        title: task.title,
         start: task.day.split('T')[0],
         allDay: true,
-        backgroundColor: task.isDone ? 'var(--fc-monarch-secondary)' : null,
-        borderColor: task.isDone ? 'var(--fc-monarch-secondary)' : null,
-        textColor: task.isDone ? 'var(--fc-monarch-secondary-foreground)' : null,
-        classNames: task.isDone ? ['task-done'] : []
+        extendedProps: {
+            isDone: task.isDone,
+            description: task.description
+        },
+        color: task.isDone ? 'var(--fc-monarch-secondary)' : null,
+        contrastColor: task.isDone ? 'var(--fc-monarch-secondary-foreground)' : null,
+        className: task.isDone ? 'task-done' : ''
     };
 }
 
-function formatDateInput(date) {
-    const pad = number => String(number).padStart(2, '0');
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+function createTaskEventContent(arg) {
+    const taskId = parseInt(arg.event.id, 10);
+    const isDone = arg.event.extendedProps.isDone;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'task-event-content';
+
+    const toggle = document.createElement('span');
+    toggle.className = 'task-toggle' + (isDone ? ' is-checked' : '');
+    toggle.textContent = isDone ? '✔' : '○';
+    toggle.title = isDone ? 'Отметить как невыполненную' : 'Отметить выполненной';
+
+    // Не даём клику по чекбоксу открыть модалку задачи
+    toggle.addEventListener('mousedown', event => event.stopPropagation());
+    toggle.addEventListener('click', async function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+        await toggleTaskDone(taskId);
+    });
+
+    const title = document.createElement('span');
+    title.className = 'fc-event-title';
+    title.textContent = arg.event.title;
+
+    wrapper.append(toggle, title);
+
+    return { domNodes: [wrapper] };
+}
+
+async function toggleTaskDone(id) {
+    try {
+        const response = await fetch(`/api/tasks/${id}/toggle`, {
+            method: 'PATCH'
+        });
+
+        if (!response.ok) {
+            throw new Error('Ошибка при изменении статуса');
+        }
+
+        calendar.refetchEvents();
+
+    } catch (error) {
+        console.error('Ошибка при изменении статуса задачи:', error);
+        alert('Не удалось изменить статус задачи');
+    }
+}
+
+function updateTaskProgress() {
+    const container = document.getElementById('taskProgress');
+    if (!container || !calendar) {
+        return;
+    }
+
+    const start = calendar.view.activeStart;
+    const end = calendar.view.activeEnd;
+
+    const inRange = loadedTasks.filter(task => {
+        const day = new Date(task.day.split('T')[0] + 'T00:00:00');
+        return day >= start && day < end;
+    });
+
+    const total = inRange.length;
+    const done = inRange.filter(task => task.isDone).length;
+
+    container.querySelector('.task-progress-text').textContent =
+        total === 0 ? 'Задач нет' : `Выполнено ${done} из ${total}`;
+
+    container.querySelector('.progress-bar').style.width =
+        total === 0 ? '0%' : `${Math.round(done / total * 100)}%`;
 }
 
 function openTaskModal(id, baseDate) {

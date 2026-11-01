@@ -4,9 +4,20 @@
     ViewData["Title"] = "Задачи";
 }
 
-<div class="container">
-    <h2 class="mb-4 text-center">Задачник</h2>
+<div class="app-page-header">
+    <div>
+        <h1 class="app-title h3 mb-1">Задачник</h1>
+        <div class="app-subtitle">Планируйте дела по дням – перетаскивайте задачи между датами</div>
+    </div>
+    <div id="taskProgress" class="task-progress">
+        <span class="task-progress-text">Задач нет</span>
+        <div class="progress" role="progressbar" aria-label="Прогресс задач" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar" style="width: 0%"></div>
+        </div>
+    </div>
+</div>
 
+<div class="app-calendar-card">
     <div id="calendar"></div>
 </div>
 
@@ -18,7 +29,7 @@
     +
 </button>
 
-<div class="modal fade" id="taskModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true">
+<div class="modal fade app-modal" id="taskModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -29,11 +40,11 @@
                 <input type="hidden" id="taskId" value="" />
                 <div class="mb-3">
                     <label for="taskTitle" class="form-label">Заголовок</label>
-                    <input type="text" id="taskTitle" class="form-control" placeholder="Заголовок задачи" />
+                    <input type="text" id="taskTitle" class="form-control" placeholder="Что нужно сделать?" />
                 </div>
                 <div class="mb-3">
                     <label for="taskDescription" class="form-label">Описание</label>
-                    <textarea id="taskDescription" class="form-control" rows="3" placeholder="Описание задачи"></textarea>
+                    <textarea id="taskDescription" class="form-control" rows="3" placeholder="Подробности задачи"></textarea>
                 </div>
                 <div class="mb-3">
                     <label for="taskDay" class="form-label">День задачи</label>
